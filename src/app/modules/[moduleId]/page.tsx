@@ -1,0 +1,424 @@
+﻿"use client";
+
+import Link from "next/link";
+import { useParams } from "next/navigation";
+
+type ModuleConfig = {
+  title: string;
+  subtitle: string;
+  description: string;
+  accent: string;
+  stats: {
+    label: string;
+    value: string;
+    note: string;
+  }[];
+  actions: string[];
+  features: string[];
+};
+
+const moduleConfigs: Record<string, ModuleConfig> = {
+  companies: {
+    title: "Companies",
+    subtitle: "Multi-Company Workspace Manager",
+    description:
+      "Create and manage isolated company workspaces, branding, products, campaigns and marketing operations.",
+    accent: "Workspace Control",
+    stats: [
+      { label: "Companies", value: "4", note: "Initial workspaces" },
+      { label: "Active", value: "4", note: "Frontend setup" },
+      { label: "Industries", value: "2", note: "Current templates" },
+      { label: "Pending Setup", value: "0", note: "Database not connected" },
+    ],
+    actions: ["Add Company", "Brand Setup", "Add Product", "View Workspaces"],
+    features: [
+      "Company Logo & Brand Assets",
+      "Website & Contact Details",
+      "Industry Template",
+      "Product Portfolio",
+      "Workspace Isolation",
+      "Team Access",
+    ],
+  },
+
+  products: {
+    title: "Products",
+    subtitle: "Product Marketing Portfolio",
+    description:
+      "Manage products across company workspaces and open a dedicated Product Marketing Center for each product.",
+    accent: "Product Control",
+    stats: [
+      { label: "Products", value: "0", note: "Database pending" },
+      { label: "Campaigns", value: "0", note: "Across products" },
+      { label: "Creatives", value: "0", note: "Product assets" },
+      { label: "Leads", value: "0", note: "Product enquiries" },
+    ],
+    actions: ["Add Product", "Open Product Center", "Create Campaign", "View Analytics"],
+    features: [
+      "Product Overview",
+      "Campaign Planning",
+      "Creative Library",
+      "Landing Pages",
+      "Lead Forms",
+      "AI Marketing Coach",
+    ],
+  },
+
+  campaigns: {
+    title: "Campaigns",
+    subtitle: "Campaign Management Center",
+    description:
+      "Plan marketing campaigns by company and product, prepare channel strategy, creatives, tracking and approvals.",
+    accent: "Campaign Control",
+    stats: [
+      { label: "Active", value: "0", note: "Live campaigns" },
+      { label: "Draft", value: "0", note: "Work in progress" },
+      { label: "Reach", value: "0", note: "Organic + paid" },
+      { label: "Leads", value: "0", note: "Campaign leads" },
+    ],
+    actions: ["New Campaign", "Campaign Brief", "Add Channel", "Track Performance"],
+    features: [
+      "Campaign Brief",
+      "Audience & Objective",
+      "Channel Planning",
+      "Creative Mapping",
+      "UTM Tracking",
+      "Approval Workflow",
+    ],
+  },
+
+  creatives: {
+    title: "Creatives",
+    subtitle: "Creative Studio",
+    description:
+      "Organize posters, social creatives, reels, videos, copy and campaign content inside the correct company workspace.",
+    accent: "Creative Studio",
+    stats: [
+      { label: "Creatives", value: "0", note: "All assets" },
+      { label: "Drafts", value: "0", note: "In production" },
+      { label: "Review", value: "0", note: "Needs review" },
+      { label: "Approved", value: "0", note: "Ready to publish" },
+    ],
+    actions: ["New Creative", "Create Poster", "Plan Reel", "Content Draft"],
+    features: [
+      "Poster Concepts",
+      "Reels & Videos",
+      "Social Content",
+      "Headline & Hook Bank",
+      "CTA Library",
+      "Brand-Safe Review",
+    ],
+  },
+
+  "landing-pages": {
+    title: "Landing Pages",
+    subtitle: "Landing Page Builder",
+    description:
+      "Prepare focused campaign pages with lead capture, CTA, tracking links, QR codes and approval controls.",
+    accent: "Conversion Pages",
+    stats: [
+      { label: "Pages", value: "0", note: "Total pages" },
+      { label: "Live", value: "0", note: "Published" },
+      { label: "Visitors", value: "0", note: "Tracked traffic" },
+      { label: "Conversions", value: "0.00%", note: "Lead conversion" },
+    ],
+    actions: ["New Landing Page", "Add Lead Form", "Create QR", "Add Tracking"],
+    features: [
+      "Hero & CTA",
+      "Lead Capture Form",
+      "Product Information",
+      "UTM Tracking",
+      "QR Code",
+      "Conversion Analytics",
+    ],
+  },
+
+  leads: {
+    title: "Leads",
+    subtitle: "Lead Management Center",
+    description:
+      "Collect and organize marketing enquiries by company, product, campaign and lead source.",
+    accent: "Lead Control",
+    stats: [
+      { label: "Total Leads", value: "0", note: "All sources" },
+      { label: "New", value: "0", note: "Needs action" },
+      { label: "Follow-Up", value: "0", note: "In progress" },
+      { label: "Converted", value: "0", note: "Completed conversion" },
+    ],
+    actions: ["Add Lead", "Create Lead Form", "Import Leads", "Follow-Up Queue"],
+    features: [
+      "Lead Source",
+      "Campaign Attribution",
+      "Product Interest",
+      "Follow-Up Status",
+      "Assigned User",
+      "Conversion Tracking",
+    ],
+  },
+
+  approvals: {
+    title: "Approvals",
+    subtitle: "Marketing Approval Center",
+    description:
+      "Review campaign content before publication with a clear human approval workflow and audit trail.",
+    accent: "Review & Compliance",
+    stats: [
+      { label: "Pending", value: "0", note: "Needs review" },
+      { label: "Changes", value: "0", note: "Changes required" },
+      { label: "Approved", value: "0", note: "Ready to publish" },
+      { label: "Published", value: "0", note: "Completed items" },
+    ],
+    actions: ["Review Queue", "Approval History", "Changes Required", "Approved Content"],
+    features: [
+      "Draft Review",
+      "Internal Review",
+      "Approval Pending",
+      "Changes Required",
+      "Approved",
+      "Publish Ready",
+    ],
+  },
+
+  analytics: {
+    title: "Analytics",
+    subtitle: "Growth Analytics & Reports",
+    description:
+      "Bring campaign, traffic, reach, leads, conversion and channel performance into one multi-company reporting layer.",
+    accent: "Performance Intelligence",
+    stats: [
+      { label: "Traffic", value: "0", note: "Tracked visits" },
+      { label: "Reach", value: "0", note: "Organic + paid" },
+      { label: "Leads", value: "0", note: "Captured enquiries" },
+      { label: "Conversion", value: "0.00%", note: "Lead conversion" },
+    ],
+    actions: ["Performance Report", "Campaign Report", "Lead Report", "Export"],
+    features: [
+      "Company Performance",
+      "Product Performance",
+      "Campaign Analytics",
+      "Channel Analytics",
+      "Lead Conversion",
+      "UTM & QR Tracking",
+    ],
+  },
+
+  settings: {
+    title: "Settings",
+    subtitle: "MMD Platform Settings",
+    description:
+      "Configure workspace defaults, team access, brand controls, integrations and platform preferences.",
+    accent: "Platform Control",
+    stats: [
+      { label: "Companies", value: "4", note: "Current setup" },
+      { label: "Users", value: "0", note: "Database pending" },
+      { label: "Integrations", value: "0", note: "Not connected" },
+      { label: "Approvers", value: "0", note: "Setup pending" },
+    ],
+    actions: ["Team Settings", "Brand Settings", "Integrations", "Approval Rules"],
+    features: [
+      "User Roles",
+      "Company Access",
+      "Brand Assets",
+      "Approval Rules",
+      "Social Integrations",
+      "Tracking Integrations",
+    ],
+  },
+};
+
+function formatModuleName(value: string) {
+  return value
+    .split("-")
+    .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+    .join(" ");
+}
+
+export default function ModuleHubPage() {
+  const params = useParams<{ moduleId: string }>();
+  const moduleId = params.moduleId;
+
+  const config =
+    moduleConfigs[moduleId] ?? {
+      title: formatModuleName(moduleId),
+      subtitle: "MMD Marketing Module",
+      description:
+        "This module is part of the MoneyPulse MarketMint Digital marketing platform.",
+      accent: "MMD Module",
+      stats: [
+        { label: "Total", value: "0", note: "No data yet" },
+        { label: "Active", value: "0", note: "No data yet" },
+        { label: "Pending", value: "0", note: "No data yet" },
+        { label: "Completed", value: "0", note: "No data yet" },
+      ],
+      actions: ["Create", "Manage", "Review", "Analytics"],
+      features: [
+        "Workspace Context",
+        "Product Context",
+        "Team Workflow",
+        "Approval Workflow",
+        "Tracking",
+        "Analytics",
+      ],
+    };
+
+  return (
+    <main className="min-h-screen bg-[#07111f] text-white">
+      <div className="mx-auto max-w-[1600px] px-5 py-6 lg:px-8">
+        <div className="flex flex-wrap items-center gap-2 text-sm text-slate-500">
+          <Link href="/" className="transition hover:text-white">
+            MMD Dashboard
+          </Link>
+          <span>/</span>
+          <span className="text-emerald-300">{config.title}</span>
+        </div>
+
+        <section className="mt-6 overflow-hidden rounded-3xl border border-emerald-400/20 bg-gradient-to-br from-emerald-400/[0.08] via-white/[0.025] to-transparent p-6 lg:p-8">
+          <div className="flex flex-col justify-between gap-6 xl:flex-row xl:items-center">
+            <div>
+              <span className="inline-flex rounded-full border border-emerald-400/20 bg-emerald-400/10 px-3 py-1 text-xs font-bold text-emerald-300">
+                {config.accent}
+              </span>
+
+              <h1 className="mt-4 text-3xl font-bold tracking-tight lg:text-4xl">
+                {config.title}
+              </h1>
+
+              <p className="mt-2 text-sm font-medium text-slate-300">
+                {config.subtitle}
+              </p>
+
+              <p className="mt-3 max-w-3xl text-sm leading-6 text-slate-500">
+                {config.description}
+              </p>
+            </div>
+
+            <Link
+              href="/"
+              className="w-fit rounded-xl border border-white/10 bg-white/[0.05] px-4 py-2.5 text-sm font-semibold text-slate-200 transition hover:bg-white/10"
+            >
+              ← Dashboard
+            </Link>
+          </div>
+        </section>
+
+        <section className="mt-6 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+          {config.stats.map((stat) => (
+            <article
+              key={stat.label}
+              className="rounded-2xl border border-white/10 bg-white/[0.035] p-5"
+            >
+              <p className="text-xs uppercase tracking-[0.12em] text-slate-500">
+                {stat.label}
+              </p>
+              <p className="mt-3 text-3xl font-bold">{stat.value}</p>
+              <p className="mt-2 text-xs text-slate-600">{stat.note}</p>
+            </article>
+          ))}
+        </section>
+
+        <section className="mt-6 grid gap-6 xl:grid-cols-[1.15fr_0.85fr]">
+          <div className="rounded-3xl border border-white/10 bg-white/[0.03] p-5 lg:p-6">
+            <div>
+              <p className="text-xs font-semibold uppercase tracking-[0.16em] text-emerald-300">
+                Quick Actions
+              </p>
+              <h2 className="mt-2 text-xl font-semibold">
+                {config.title} Workspace
+              </h2>
+              <p className="mt-2 text-sm text-slate-500">
+                Frontend controls are ready for the persistent data layer.
+              </p>
+            </div>
+
+            <div className="mt-5 grid gap-3 sm:grid-cols-2">
+              {config.actions.map((action, index) => (
+                <button
+                  key={action}
+                  type="button"
+                  className={`rounded-2xl border p-4 text-left transition ${
+                    index === 0
+                      ? "border-emerald-400/20 bg-emerald-400/[0.07] hover:bg-emerald-400/[0.1]"
+                      : "border-white/10 bg-white/[0.025] hover:border-white/20 hover:bg-white/[0.05]"
+                  }`}
+                >
+                  <div className="flex items-center justify-between gap-4">
+                    <span className="text-sm font-semibold">{action}</span>
+                    <span className="text-slate-600">→</span>
+                  </div>
+
+                  <p className="mt-2 text-xs leading-5 text-slate-600">
+                    UI foundation ready · Database connection pending
+                  </p>
+                </button>
+              ))}
+            </div>
+
+            <div className="mt-6 rounded-2xl border border-dashed border-white/10 bg-black/10 p-5">
+              <p className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">
+                Current State
+              </p>
+
+              <p className="mt-3 text-sm leading-6 text-slate-400">
+                This module is running in frontend foundation mode. Real
+                records, user access, persistence and live analytics will be
+                connected through the dedicated MMD data layer.
+              </p>
+            </div>
+          </div>
+
+          <div className="rounded-3xl border border-white/10 bg-white/[0.03] p-5 lg:p-6">
+            <p className="text-xs font-semibold uppercase tracking-[0.16em] text-cyan-300">
+              Module Capabilities
+            </p>
+
+            <h2 className="mt-2 text-xl font-semibold">
+              What this module manages
+            </h2>
+
+            <div className="mt-5 space-y-3">
+              {config.features.map((feature, index) => (
+                <div
+                  key={feature}
+                  className="flex items-center gap-3 rounded-xl border border-white/[0.07] bg-black/10 p-3"
+                >
+                  <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-white/5 text-xs font-bold text-slate-500">
+                    {String(index + 1).padStart(2, "0")}
+                  </span>
+
+                  <span className="text-sm text-slate-300">{feature}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        <section className="mt-6 rounded-3xl border border-purple-400/15 bg-purple-400/[0.035] p-5 lg:p-6">
+          <div className="grid gap-5 lg:grid-cols-[0.8fr_2fr] lg:items-center">
+            <div>
+              <p className="text-xs font-semibold uppercase tracking-[0.16em] text-purple-300">
+                MMD Architecture
+              </p>
+
+              <h2 className="mt-2 text-lg font-semibold">
+                Brand & Data Isolation
+              </h2>
+            </div>
+
+            <p className="text-sm leading-6 text-slate-400">
+              Company → Product → Campaign → Creative / Landing Page →
+              Approval → Publish → Leads → Conversion → Performance.
+              Company data and AI context remain scoped to the correct
+              workspace.
+            </p>
+          </div>
+        </section>
+
+        <footer className="mt-10 flex flex-col gap-2 border-t border-white/10 py-6 text-xs text-slate-600 sm:flex-row sm:justify-between">
+          <span>MoneyPulse MarketMint Digital · MMD V1</span>
+          <span>{config.title} Module Hub</span>
+        </footer>
+      </div>
+    </main>
+  );
+}
+
